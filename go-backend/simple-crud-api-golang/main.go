@@ -16,6 +16,21 @@ type Employee struct {
 
 var employees = map[string]Employee{}
 
+func main() {
+	mux := http.NewServeMux()
+
+	mux.HandleFunc("GET /", serverStatus)
+	mux.HandleFunc("GET /employees", getEmployees)
+	mux.HandleFunc("GET /employees/{id}", getEmployee)
+	mux.HandleFunc("POST /employees", createEmployee)
+	mux.HandleFunc("DELETE /employees/{id}", deleteEmployee)
+	mux.HandleFunc("PUT /employees/{id}", updateEmployee)
+
+	log.Println("Starting server on :8080")
+	http.ListenAndServe(":8080", mux)
+
+}
+
 func serverStatus(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte("Server up and runnning...\n"))
@@ -65,7 +80,7 @@ func createEmployee(w http.ResponseWriter, r *http.Request) {
 
 	employees[employee.ID] = employee
 
-	w.Header().Set("Content-Type", "application-json")
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(employee)
 }
@@ -102,19 +117,4 @@ func updateEmployee(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(update)
-}
-
-func main() {
-	mux := http.NewServeMux()
-
-	mux.HandleFunc("GET /", serverStatus)
-	mux.HandleFunc("GET /employees", getEmployees)
-	mux.HandleFunc("GET /employees/{id}", getEmployee)
-	mux.HandleFunc("POST /employees", createEmployee)
-	mux.HandleFunc("DELETE /employees/{id}", deleteEmployee)
-	mux.HandleFunc("PUT /employees/{id}", updateEmployee)
-
-	log.Println("Starting server on :8080")
-	http.ListenAndServe(":8080", mux)
-
 }
